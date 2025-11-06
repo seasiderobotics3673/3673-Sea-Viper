@@ -333,7 +333,7 @@ public class Vision
   /**
    * Camera Enum to select each camera
    */
-  public enum Cameras
+  public static enum Cameras
   {
     
     /**
