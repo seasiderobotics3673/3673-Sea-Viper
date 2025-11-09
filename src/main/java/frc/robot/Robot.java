@@ -57,8 +57,9 @@ public class Robot extends TimedRobot
 
   private Timer disabledTimer;
 
-  //private PhotonCamera camera = new PhotonCamera("centerCam");
-  private PhotonCamera visionCamera;
+  //private SwerveSubsystem drivebase;
+
+  //private PhotonCamera visionCamera;
 
   private Cameras cameraEnum = Cameras.CENTER_CAM;
 
@@ -109,7 +110,7 @@ public class Robot extends TimedRobot
     //colorMatcher.addColorMatch(whiteTarget);
     //colorMatcher.addColorMatch(background);
 
-    visionCamera = new PhotonCamera(cameraName);
+    //visionCamera = new PhotonCamera(cameraName);
 
     
 
@@ -243,6 +244,8 @@ public class Robot extends TimedRobot
   @Override
   public void teleopPeriodic()
   {
+    /*
+    
 
     if (visionCamera != null) {
       double forward = -m_robotContainer.logitechController.getLeftY() * Constants.MAX_SPEED;
@@ -276,8 +279,9 @@ public class Robot extends TimedRobot
       // Driver wants auto-alignment to tag 14
               // And, tag 14 is in sight, so we can turn toward it.
               // Override the driver's turn command with an automatic one that turns toward the tag.
-              turn = -1.0 * targetYaw * Constants.VISION_TURN_kP * Constants.MAX_ANGULAR_SPEED;
-              System.out.println(turn);
+              //turn = -1.0 * targetYaw * Constants.VISION_TURN_kP * Constants.MAX_ANGULAR_SPEED;
+              //System.out.println(turn);
+              drivebase.aimAtTarget(cameraEnum);
 
     }
 
@@ -291,6 +295,7 @@ public class Robot extends TimedRobot
 
 
     }
+    */
     
   }
 
