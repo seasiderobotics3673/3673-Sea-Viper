@@ -57,17 +57,6 @@ public class Robot extends TimedRobot
 
   private Timer disabledTimer;
 
-  //private PhotonCamera camera = new PhotonCamera("centerCam");
-  private PhotonCamera visionCamera;
-
-  private Cameras cameraEnum = Cameras.CENTER_CAM;
-
-  private String cameraName = cameraEnum.name();
-
-  
-
-
-
   UsbCamera cam0;
 
   //https://rgbcolorpicker.com/0-1
@@ -109,7 +98,7 @@ public class Robot extends TimedRobot
     //colorMatcher.addColorMatch(whiteTarget);
     //colorMatcher.addColorMatch(background);
 
-    visionCamera = new PhotonCamera(cameraName);
+    //visionCamera = new PhotonCamera(cameraName);
 
     
 
@@ -243,54 +232,6 @@ public class Robot extends TimedRobot
   @Override
   public void teleopPeriodic()
   {
-
-    if (visionCamera != null) {
-      double forward = -m_robotContainer.logitechController.getLeftY() * Constants.MAX_SPEED;
-      double strafe = -m_robotContainer.logitechController.getLeftX() * Constants.MAX_SPEED;
-      double turn = -m_robotContainer.logitechController.getRightX() * Constants.MAX_ANGULAR_SPEED;
-      
-
-      boolean targetVisible = false;
-      double targetYaw = 0.0;
-      //var results = camera.getAllUnreadResults();
-      //var results = Cameras.CENTER_CAM.camera.getAllUnreadResults();
-      var results = cameraEnum.camera.getAllUnreadResults();
-      if (!results.isEmpty()) {
-        // Camera processed a new frame since last
-        // Get the last one in the list.
-        var result = results.get(results.size() - 1);
-        if (result.hasTargets()) {
-            // At least one AprilTag was seen by the camera
-            for (var target : result.getTargets()) {
-                if (target.getFiducialId() == 14) {
-                    // Found Tag 14, record its information
-                    targetYaw = target.getYaw();
-                    targetVisible = true;
-                }
-            }
-        }
-          
-    }
-
-    if (m_robotContainer.logitechController.a().getAsBoolean() && targetVisible) {
-      // Driver wants auto-alignment to tag 14
-              // And, tag 14 is in sight, so we can turn toward it.
-              // Override the driver's turn command with an automatic one that turns toward the tag.
-              turn = -1.0 * targetYaw * Constants.VISION_TURN_kP * Constants.MAX_ANGULAR_SPEED;
-              System.out.println(turn);
-
-    }
-
-
-            // Command drivetrain motors based on target speeds
-            m_robotContainer.drivebase.drive(new Translation2d(forward, strafe), turn, true);
-
-            // Put debug information to the dashboard
-            SmartDashboard.putBoolean("Is Target Visible?: ", targetVisible);
-
-
-
-    }
     
   }
 

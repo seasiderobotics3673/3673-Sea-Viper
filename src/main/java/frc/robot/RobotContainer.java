@@ -40,6 +40,7 @@ import frc.robot.subsystems.swervedrive.Elevator;
 import frc.robot.subsystems.swervedrive.Feeder;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 import frc.robot.subsystems.swervedrive.Vision;
+import frc.robot.subsystems.swervedrive.Vision.Cameras;
 
 import java.io.File;
 import java.time.Instant;
@@ -81,8 +82,7 @@ public class RobotContainer
 
   private final Trigger coralDetector = new Trigger(()-> feeder.hasCoralDisappeared());
 
-  
-  
+  private Cameras cameraEnum = Cameras.CENTER_CAM;
 
 
   /**
@@ -306,6 +306,9 @@ public class RobotContainer
       //Feeder Out
       //brodieBox2025.button(3)
 
+      //Rotate towards apriltag toggle
+      logitechController.a()
+        .whileTrue(drivebase.aimAtTarget(cameraEnum));
 
 
       
