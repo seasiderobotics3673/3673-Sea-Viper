@@ -31,6 +31,7 @@ import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -173,6 +174,8 @@ public class SwerveSubsystem extends SubsystemBase
       vision.updatePoseEstimation(swerveDrive);
     }
     
+    //To Add: Force camera update peridocally with .getEstimatedGlobalPose(Cameras).
+
   }
 
   @Override
@@ -260,10 +263,12 @@ public class SwerveSubsystem extends SubsystemBase
   {
 
     return run(() -> {
+      vision.getEstimatedGlobalPose(camera); //Forces camera update.
       Optional<PhotonPipelineResult> resultO = camera.getBestResult();
       if (resultO.isPresent())
       {
         var result = resultO.get();
+        SmartDashboard.putBoolean("Target Visible: ", result.hasTargets());
         if (result.hasTargets())
         {
           drive(getTargetSpeeds(0,
