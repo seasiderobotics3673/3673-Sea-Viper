@@ -174,6 +174,8 @@ public class SwerveSubsystem extends SubsystemBase
       vision.updatePoseEstimation(swerveDrive);
     }
     
+    //To Add: Force camera update peridocally with .getEstimatedGlobalPose(Cameras).
+
   }
 
   @Override
@@ -261,6 +263,7 @@ public class SwerveSubsystem extends SubsystemBase
   {
 
     return run(() -> {
+      vision.getEstimatedGlobalPose(camera); //Forces camera update.
       Optional<PhotonPipelineResult> resultO = camera.getBestResult();
       if (resultO.isPresent())
       {
