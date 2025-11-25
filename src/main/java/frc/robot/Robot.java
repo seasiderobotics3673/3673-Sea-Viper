@@ -57,6 +57,8 @@ public class Robot extends TimedRobot
 
   private Timer disabledTimer;
 
+  private Cameras cameraEnum = Cameras.CENTER_CAM;
+
   UsbCamera cam0;
 
   //https://rgbcolorpicker.com/0-1
@@ -84,6 +86,8 @@ public class Robot extends TimedRobot
     // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
     // autonomous chooser on the dashboard.
     m_robotContainer = new RobotContainer();
+
+    m_robotContainer.drivebase.setupPhotonVision();
 
     // Create a timer to disable motor brake a few seconds after disable.  This will let the robot stop
     // immediately when disabled, but then also let it be pushed more 
@@ -232,7 +236,7 @@ public class Robot extends TimedRobot
   @Override
   public void teleopPeriodic()
   {
-    
+    m_robotContainer.vision.getEstimatedGlobalPose(cameraEnum); //Forces camera update.
   }
 
   @Override

@@ -82,7 +82,7 @@ public class RobotContainer
 
   private final Trigger coralDetector = new Trigger(()-> feeder.hasCoralDisappeared());
 
-  private Cameras cameraEnum = Cameras.CENTER_CAM;
+  private final Cameras cameraEnum = Cameras.CENTER_CAM;
 
 
   /**
@@ -197,6 +197,7 @@ public class RobotContainer
     } else
     {
       drivebase.setDefaultCommand(driveFieldOrientedAnglularVelocity);
+      System.out.println("Default Command Ran");
     }
 
     if (Robot.isSimulation())

@@ -21,6 +21,7 @@ public class SlowDown extends Command {
   @Override
   public void initialize() {
     drivebase.setSpeedMultipler(Constants.SWERVE_SPEED_SLOW);
+    System.out.println("Slow Down Command Run");
   }
 
   // Called every time the scheduler runs while the command is scheduled.

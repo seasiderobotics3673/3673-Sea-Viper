@@ -5,6 +5,7 @@
 package frc.robot.subsystems.swervedrive;
 
 import static edu.wpi.first.units.Units.Meter;
+import static edu.wpi.first.units.Units.Rotation;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.PathPlannerAuto;
@@ -82,6 +83,8 @@ public class SwerveSubsystem extends SubsystemBase
 
   //true is normal, false is slow
   public boolean speedModifierToggle = true;
+
+  private int counter;
 
   /**
    * Initialize {@link SwerveDrive} with the directory provided.
@@ -261,20 +264,39 @@ public class SwerveSubsystem extends SubsystemBase
    */
   public Command aimAtTarget(Cameras camera)
   {
-
+    //System.out.println("aimAtTarget Running");
     return run(() -> {
-      vision.getEstimatedGlobalPose(camera); //Forces camera update.
-      Optional<PhotonPipelineResult> resultO = camera.getBestResult();
+      //vision.getEstimatedGlobalPose(camera); //Forces camera update.
+      //Optional<PhotonPipelineResult> resultO = camera.getBestResult();
+      Optional<PhotonPipelineResult> resultO = camera.getLatestResult();
+      //System.out.println(resultO);
       if (resultO.isPresent())
       {
         var result = resultO.get();
-        SmartDashboard.putBoolean("Target Visible: ", result.hasTargets());
+
+        //SmartDashboard.putBoolean("Target Visible: ", result.hasTargets());
+        //System.out.println("Result is Present");
         if (result.hasTargets())
         {
+          //System.out.println(Rotation2d.fromDegrees(result.getBestTarget().getYaw()));
+          counter++;
+          if (counter >= 5) {
+            System.out.println(getTargetSpeeds(
+              0,
+              0,
+              Rotation2d.fromDegrees(result.getBestTarget()
+              .getYaw())));
+            //System.out.println(Rotation2d.fromDegrees(result.getBestTarget()
+            //.getYaw()));
+            System.out.println(Rotation2d.fromDegrees(result.getBestTarget().getPitch()));
+            //System.out.println(Rotation2d.fromDegrees(result.getBestTarget()()));
+              counter = 0;
+          }
+
           drive(getTargetSpeeds(0,
                                 0,
                                 Rotation2d.fromDegrees(result.getBestTarget()
-                                                             .getYaw()))); // Not sure if this will work, more math may be required.
+                                .getYaw()))); // Not sure if this will work, more math may be required.
         }
       }
     });
