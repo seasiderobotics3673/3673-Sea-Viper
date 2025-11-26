@@ -73,7 +73,7 @@ public class SwerveSubsystem extends SubsystemBase
   /**
    * Enable vision odometry updates while driving.
    */
-  private final boolean             visionDriveTest     = false;
+  private final boolean             visionDriveTest     = true;
   /**
    * PhotonVision class to keep an accurate odometry.
    */
@@ -265,20 +265,17 @@ public class SwerveSubsystem extends SubsystemBase
   public Command aimAtTarget(Cameras camera)
   {
     //System.out.println("aimAtTarget Running");
+    setupPhotonVision();
     return run(() -> {
       //vision.getEstimatedGlobalPose(camera); //Forces camera update.
       //Optional<PhotonPipelineResult> resultO = camera.getBestResult();
       Optional<PhotonPipelineResult> resultO = camera.getLatestResult();
-      //System.out.println(resultO);
       if (resultO.isPresent())
       {
         var result = resultO.get();
 
-        //SmartDashboard.putBoolean("Target Visible: ", result.hasTargets());
-        //System.out.println("Result is Present");
         if (result.hasTargets())
         {
-          //System.out.println(Rotation2d.fromDegrees(result.getBestTarget().getYaw()));
           counter++;
           if (counter >= 5) {
             System.out.println(getTargetSpeeds(
@@ -289,8 +286,7 @@ public class SwerveSubsystem extends SubsystemBase
             //System.out.println(Rotation2d.fromDegrees(result.getBestTarget()
             //.getYaw()));
             System.out.println(Rotation2d.fromDegrees(result.getBestTarget().getPitch()));
-            //System.out.println(Rotation2d.fromDegrees(result.getBestTarget()()));
-              counter = 0;
+            counter = 0;
           }
 
           drive(getTargetSpeeds(0,
