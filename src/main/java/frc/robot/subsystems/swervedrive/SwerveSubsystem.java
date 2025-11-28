@@ -48,6 +48,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 import org.json.simple.parser.ParseException;
+import org.photonvision.PhotonUtils;
 import org.photonvision.targeting.PhotonPipelineResult;
 import swervelib.SwerveController;
 import swervelib.SwerveDrive;
@@ -165,6 +166,35 @@ public class SwerveSubsystem extends SubsystemBase
       setSpeedMultipler(Constants.SWERVE_SPEED_FULL);
     }
     speedModifierToggle = tempFlag;
+  }
+
+  public Translation2d getTargetPos(Cameras camera) {
+    Optional<PhotonPipelineResult> result0 = camera.getLatestResult();
+    if (result0.isPresent()) {
+      var result = result0.get();
+
+      if (result.hasTargets()) {
+        double estimatedTargetPitch = Math.toRadians(result.getBestTarget().getPitch());
+        double targetHeight = Constants.APRILTAG_HEIGHTS[6]; //Dummy Value; Change Later
+        double estimatedTargetDistance = PhotonUtils.calculateDistanceToTargetMeters
+        (
+          Cameras.CENTER_CAM.robotToCamTransform.getZ(),
+          targetHeight, 
+          0.0,
+          estimatedTargetPitch
+        );
+        
+        Rotation2d estimatedYaw = Rotation2d.fromDegrees(result.getBestTarget().getYaw());
+
+        return PhotonUtils.estimateCameraToTargetTranslation(estimatedTargetDistance, estimatedYaw);
+      } else {
+        DriverStation.reportWarning("Get Target Position called with no targets in sight.", false);
+        return new Translation2d();
+      }
+    }
+
+    DriverStation.reportWarning("Get Target Position Failed; Is Your Camera On?", false);
+    return new Translation2d(); //Camera probably isn't functioning.
   }
 
   @Override
