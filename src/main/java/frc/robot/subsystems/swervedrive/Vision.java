@@ -14,6 +14,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
@@ -21,6 +22,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.NetworkTablesJNI;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import frc.robot.Constants;
 import frc.robot.Robot;
@@ -182,6 +184,94 @@ public class Vision
     }
     return poseEst;
   }
+
+
+  //Default unit for Translation2d is Meters. Inaccurate at lower target pitches.
+  public Translation2d getTargetPos(Cameras camera) {
+    Optional<PhotonPipelineResult> result0 = camera.getLatestResult();
+    if (result0.isPresent()) {
+      var result = result0.get();
+
+      if (result.hasTargets()) {
+        double estimatedTargetPitch = Math.toRadians(result.getBestTarget().getPitch());
+        double targetHeight = Constants.APRILTAG_HEIGHTS[6]; //Dummy Value; Change Later
+        double estimatedTargetDistance = PhotonUtils.calculateDistanceToTargetMeters
+        (
+          Cameras.CENTER_CAM.robotToCamTransform.getZ(),
+          targetHeight, 
+          0.0,
+          estimatedTargetPitch
+        );
+        
+        Rotation2d estimatedYaw = Rotation2d.fromDegrees(result.getBestTarget().getYaw());
+
+        return PhotonUtils.estimateCameraToTargetTranslation(estimatedTargetDistance, estimatedYaw);
+      } else {
+        DriverStation.reportWarning("Get Target Position called with no targets in sight.", false);
+        return new Translation2d();
+      }
+    }
+
+    DriverStation.reportWarning("Get Target Position Failed; Is Your Camera On?", false);
+    return new Translation2d(); //Camera probably isn't functioning.
+  }
+
+  //Inaccurate at lower target pitches.
+  public double getDistanceToTarget(Cameras camera) {
+    Optional<PhotonPipelineResult> result0 = camera.getLatestResult();
+    if (result0.isPresent()) {
+      var result = result0.get();
+
+      if (result.hasTargets()) {
+        double estimatedTargetPitch = Math.toRadians(result.getBestTarget().getPitch());
+        double targetHeight = Constants.APRILTAG_HEIGHTS[6]; //Dummy Value; Change Later
+        double estimatedTargetDistance = PhotonUtils.calculateDistanceToTargetMeters
+        (
+          Cameras.CENTER_CAM.robotToCamTransform.getZ(),
+          targetHeight, 
+          0.0,
+          estimatedTargetPitch
+        );
+
+        return estimatedTargetDistance;
+      }
+    }
+
+    return -1.0;
+
+  }
+
+  //Returns Theta, adjusted from the camera's offset to the relative center of the bot (0,0).
+  public double getAdjustedTheta(Cameras camera, boolean isDegrees) {
+    Translation2d originRelativeTargetPos = getTargetPos(camera);
+    double camRelativeTargetX = originRelativeTargetPos.getX();
+    double camRelativeTargetY = originRelativeTargetPos.getY();
+
+    double targetX = Cameras.CENTER_CAM.robotToCamTransform.getX() + camRelativeTargetX;
+    double targetY = camRelativeTargetY;
+
+    //If the method above is deemed inaccurate.
+    //double targetX = Cameras.CENTER_CAM.robotToCamTransform.getX() + getDistanceToTarget(camera) + Math.cos(thetaMeasured);
+    //double targetY = getDistanceToTarget(camera) + Math.sin(thetaMeasured);
+
+    double thetaAdjusted = Math.atan2(targetY, targetX);
+    double thetaAdjustedDeg = Math.toDegrees(thetaAdjusted);
+    
+    if (getDistanceToTarget(camera) < 0 ) {
+      return 361; //Return Invalid Yaw Because getDistanceToTarget failed.
+    }
+
+    if (getTargetPos(camera).equals(Translation2d.kZero)) {
+      return 361; //Return Invalid Yaw Because getTargetPos is presumed to have failed.
+    }
+
+    if (isDegrees) {
+      return thetaAdjustedDeg;
+    } else {
+      return thetaAdjusted;
+    }
+  }
+
 
 
   /**
