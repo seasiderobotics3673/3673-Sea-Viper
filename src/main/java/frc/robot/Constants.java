@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
 import swervelib.math.Matter;
@@ -55,6 +57,38 @@ public final class Constants
   public static final double SWERVE_SPEED_SLOW = 0.5;
 
   public static final double VISION_TURN_kP = 0.01;
+
+  public static final AprilTagFieldLayout FIELD_LAYOUT = AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape);
+
+  //Measured as the distance from the floor to the center of the Apriltag, in meters.
+  public static final double[] APRILTAG_HEIGHTS = 
+  {
+    FIELD_LAYOUT.getTagPose(1).get().getTranslation().getZ(),
+    FIELD_LAYOUT.getTagPose(2).get().getTranslation().getZ(),
+    FIELD_LAYOUT.getTagPose(3).get().getTranslation().getZ(),
+    FIELD_LAYOUT.getTagPose(4).get().getTranslation().getZ(),
+    FIELD_LAYOUT.getTagPose(5).get().getTranslation().getZ(),
+    FIELD_LAYOUT.getTagPose(6).get().getTranslation().getZ(),
+    FIELD_LAYOUT.getTagPose(7).get().getTranslation().getZ(),
+    FIELD_LAYOUT.getTagPose(8).get().getTranslation().getZ(),
+    FIELD_LAYOUT.getTagPose(9).get().getTranslation().getZ(),
+    FIELD_LAYOUT.getTagPose(10).get().getTranslation().getZ(),
+    FIELD_LAYOUT.getTagPose(11).get().getTranslation().getZ(),
+    FIELD_LAYOUT.getTagPose(12).get().getTranslation().getZ(),
+    FIELD_LAYOUT.getTagPose(13).get().getTranslation().getZ(),
+    FIELD_LAYOUT.getTagPose(14).get().getTranslation().getZ(),
+    FIELD_LAYOUT.getTagPose(15).get().getTranslation().getZ(),
+    FIELD_LAYOUT.getTagPose(16).get().getTranslation().getZ(),
+    FIELD_LAYOUT.getTagPose(17).get().getTranslation().getZ(),
+    FIELD_LAYOUT.getTagPose(18).get().getTranslation().getZ(),
+    FIELD_LAYOUT.getTagPose(19).get().getTranslation().getZ(),
+    FIELD_LAYOUT.getTagPose(20).get().getTranslation().getZ(),
+    FIELD_LAYOUT.getTagPose(21).get().getTranslation().getZ(),
+    FIELD_LAYOUT.getTagPose(22).get().getTranslation().getZ()
+    //After This is Unofficial Heights for Testing Purposes.
+  };
+
+
 
 
 
