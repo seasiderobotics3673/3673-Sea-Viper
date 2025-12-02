@@ -2,6 +2,7 @@ package frc.robot.subsystems.swervedrive;
 
 import static edu.wpi.first.units.Units.Microseconds;
 import static edu.wpi.first.units.Units.Milliseconds;
+import static edu.wpi.first.units.Units.Rotation;
 import static edu.wpi.first.units.Units.Seconds;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
@@ -189,31 +190,33 @@ public class Vision
   //Default unit for Translation2d is Meters. Inaccurate at lower target pitches.
   public Translation2d getTargetPos(Cameras camera) {
     Optional<PhotonPipelineResult> result0 = camera.getLatestResult();
-    if (result0.isPresent()) {
-      var result = result0.get();
 
-      if (result.hasTargets()) {
-        double estimatedTargetPitch = Math.toRadians(result.getBestTarget().getPitch());
-        double targetHeight = Constants.APRILTAG_HEIGHTS[6]; //Dummy Value; Change Later
-        double estimatedTargetDistance = PhotonUtils.calculateDistanceToTargetMeters
-        (
-          Cameras.CENTER_CAM.robotToCamTransform.getZ(),
-          targetHeight, 
-          0.0,
-          estimatedTargetPitch
-        );
-        
-        Rotation2d estimatedYaw = Rotation2d.fromDegrees(result.getBestTarget().getYaw());
-
-        return PhotonUtils.estimateCameraToTargetTranslation(estimatedTargetDistance, estimatedYaw);
-      } else {
-        DriverStation.reportWarning("Get Target Position called with no targets in sight.", false);
-        return new Translation2d();
-      }
+    if (result0.isEmpty()) {
+      DriverStation.reportWarning("Get Target Position Failed; Is Your Camera On?", false);
+      return new Translation2d();
     }
 
-    DriverStation.reportWarning("Get Target Position Failed; Is Your Camera On?", false);
-    return new Translation2d(); //Camera probably isn't functioning.
+    var result = result0.get();
+
+    if (!result.hasTargets()) {
+      DriverStation.reportWarning("Get Target Position called with no targets in sight.", false);
+      return new Translation2d();
+    }
+
+    double estimatedTargetPitch = Math.toRadians(result.getBestTarget().getPitch());
+    double cameraPitch = camera.robotToCamTransform.getRotation().getY(); //Should Return 0
+    double targetHeight = Constants.APRILTAG_HEIGHTS[6]; //Dummy Value; Change Later
+    double estimatedTargetDistance = PhotonUtils.calculateDistanceToTargetMeters
+    (
+      Cameras.CENTER_CAM.robotToCamTransform.getZ(),
+      targetHeight, 
+      cameraPitch,
+      estimatedTargetPitch
+    );
+    
+    Rotation2d estimatedYaw = Rotation2d.fromDegrees(-result.getBestTarget().getYaw());
+
+    return PhotonUtils.estimateCameraToTargetTranslation(estimatedTargetDistance, estimatedYaw);
   }
 
   //Inaccurate at lower target pitches.
@@ -243,33 +246,39 @@ public class Vision
 
   //Returns Theta, adjusted from the camera's offset to the relative center of the bot (0,0).
   public double getAdjustedTheta(Cameras camera, boolean isDegrees) {
-    Translation2d originRelativeTargetPos = getTargetPos(camera);
-    double camRelativeTargetX = originRelativeTargetPos.getX();
-    double camRelativeTargetY = originRelativeTargetPos.getY();
+    Translation2d camRelativeTargetPos = getTargetPos(camera);
+    Translation2d robotFrameVector = camRelativeTargetPos;
 
-    double targetX = Cameras.CENTER_CAM.robotToCamTransform.getX() + camRelativeTargetX;
-    double targetY = camRelativeTargetY;
+    Rotation2d camRotation = new Rotation2d(camera.robotToCamTransform.getRotation().getZ()); //Yaw Only
 
-    //If the method above is deemed inaccurate.
-    //double targetX = Cameras.CENTER_CAM.robotToCamTransform.getX() + getDistanceToTarget(camera) + Math.cos(thetaMeasured);
-    //double targetY = getDistanceToTarget(camera) + Math.sin(thetaMeasured);
+    double epsilon = 1e-9; //Small tolerance for floating point comparison.
+
+    //Rotate frame of reference if camera is at an angle.
+    if (Math.abs(camRotation.getRadians()) > epsilon) {
+      robotFrameVector = camRelativeTargetPos.rotateBy(camRotation);
+    }
+
+    double camRelativeTargetX = robotFrameVector.getX();
+    double camRelativeTargetY = robotFrameVector.getY();
+
+    double targetX = camRelativeTargetX + Cameras.CENTER_CAM.robotToCamTransform.getX();
+    double targetY = camRelativeTargetY + Cameras.CENTER_CAM.robotToCamTransform.getY();
 
     double thetaAdjusted = Math.atan2(targetY, targetX);
-    double thetaAdjustedDeg = Math.toDegrees(thetaAdjusted);
     
     if (getDistanceToTarget(camera) < 0 ) {
       return 361; //Return Invalid Yaw Because getDistanceToTarget failed.
     }
 
-    if (getTargetPos(camera).equals(Translation2d.kZero)) {
+    if (camRelativeTargetPos.getNorm() == 0.0) {
       return 361; //Return Invalid Yaw Because getTargetPos is presumed to have failed.
     }
 
     if (isDegrees) {
-      return thetaAdjustedDeg;
-    } else {
-      return thetaAdjusted;
+      return Math.toDegrees(thetaAdjusted);
     }
+    
+    return thetaAdjusted; //Radians
   }
 
 
