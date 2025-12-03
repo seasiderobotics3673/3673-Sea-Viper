@@ -5,7 +5,7 @@
 package frc.robot.subsystems.swervedrive;
 
 import static edu.wpi.first.units.Units.Meter;
-import static edu.wpi.first.units.Units.Rotation;
+//import static edu.wpi.first.units.Units.Rotation;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.PathPlannerAuto;
@@ -74,7 +74,7 @@ public class SwerveSubsystem extends SubsystemBase
   /**
    * Enable vision odometry updates while driving.
    */
-  private final boolean             visionDriveTest     = true;
+  private final boolean             visionDriveTest     = false;
   /**
    * PhotonVision class to keep an accurate odometry.
    */
@@ -274,26 +274,15 @@ public class SwerveSubsystem extends SubsystemBase
       if (resultO.isPresent())
       {
         var result = resultO.get();
-
         if (result.hasTargets())
         {
-          counter++;
-          if (counter >= 5) {
-            System.out.println(getTargetSpeeds(
-              0,
-              0,
-              Rotation2d.fromDegrees(result.getBestTarget()
-              .getYaw())));
-            //System.out.println(Rotation2d.fromDegrees(result.getBestTarget()
-            //.getYaw()));
-            System.out.println(Rotation2d.fromDegrees(result.getBestTarget().getPitch()));
-            counter = 0;
-          }
-
+          
           drive(getTargetSpeeds(0,
                                 0,
-                                Rotation2d.fromDegrees(result.getBestTarget()
-                                .getYaw()))); // Not sure if this will work, more math may be required.
+                                vision.getAdjustedTheta(camera))); // Not sure if this will work, more math may be required.
+          
+          System.out.println("Grabbed Yaw: " + result.getBestTarget().getYaw());
+          System.out.println(" Adjusted Yaw: " + vision.getAdjustedTheta(camera));
         }
       }
     });

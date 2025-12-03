@@ -84,8 +84,9 @@ public final class Constants
     FIELD_LAYOUT.getTagPose(19).get().getTranslation().getZ(),
     FIELD_LAYOUT.getTagPose(20).get().getTranslation().getZ(),
     FIELD_LAYOUT.getTagPose(21).get().getTranslation().getZ(),
-    FIELD_LAYOUT.getTagPose(22).get().getTranslation().getZ()
+    FIELD_LAYOUT.getTagPose(22).get().getTranslation().getZ(),
     //After This is Unofficial Heights for Testing Purposes.
+    Units.inchesToMeters(18)
   };
 
 

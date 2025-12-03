@@ -32,6 +32,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
+
+import org.dyn4j.geometry.Rotation;
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
@@ -205,7 +207,7 @@ public class Vision
 
     double estimatedTargetPitch = Math.toRadians(result.getBestTarget().getPitch());
     double cameraPitch = camera.robotToCamTransform.getRotation().getY(); //Should Return 0
-    double targetHeight = Constants.APRILTAG_HEIGHTS[6]; //Dummy Value; Change Later
+    double targetHeight = Constants.APRILTAG_HEIGHTS[22]; //Dummy Value; Change Later
     double estimatedTargetDistance = PhotonUtils.calculateDistanceToTargetMeters
     (
       Cameras.CENTER_CAM.robotToCamTransform.getZ(),
@@ -245,7 +247,7 @@ public class Vision
   }
 
   //Returns Theta, adjusted from the camera's offset to the relative center of the bot (0,0).
-  public double getAdjustedTheta(Cameras camera, boolean isDegrees) {
+  public Rotation2d getAdjustedTheta(Cameras camera) {
     Translation2d camRelativeTargetPos = getTargetPos(camera);
     Translation2d robotFrameVector = camRelativeTargetPos;
 
@@ -267,18 +269,14 @@ public class Vision
     double thetaAdjusted = Math.atan2(targetY, targetX);
     
     if (getDistanceToTarget(camera) < 0 ) {
-      return 361; //Return Invalid Yaw Because getDistanceToTarget failed.
+      return new Rotation2d(); //Return Invalid Yaw Because getDistanceToTarget failed.
     }
 
     if (camRelativeTargetPos.getNorm() == 0.0) {
-      return 361; //Return Invalid Yaw Because getTargetPos is presumed to have failed.
+      return new Rotation2d(); //Return Invalid Yaw Because getTargetPos is presumed to have failed.
     }
 
-    if (isDegrees) {
-      return Math.toDegrees(thetaAdjusted);
-    }
-    
-    return thetaAdjusted; //Radians
+    return Rotation2d.fromRadians(thetaAdjusted);
   }
 
 
