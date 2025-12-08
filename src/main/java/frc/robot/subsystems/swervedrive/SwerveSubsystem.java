@@ -39,6 +39,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 import frc.robot.Constants;
+import frc.robot.Robot;
 import frc.robot.subsystems.swervedrive.Vision.Cameras;
 import java.io.File;
 import java.io.IOException;
@@ -79,6 +80,8 @@ public class SwerveSubsystem extends SubsystemBase
    * PhotonVision class to keep an accurate odometry.
    */
   private Vision vision;
+
+  private Robot robot;
 
   public double speedMultiplier = Constants.SWERVE_SPEED_FULL;
 
@@ -276,13 +279,17 @@ public class SwerveSubsystem extends SubsystemBase
         var result = resultO.get();
         if (result.hasTargets())
         {
+          Rotation2d adjustedTheta = vision.getAdjustedTheta(camera);
+          robot.aimAtTargetDegrees.append(adjustedTheta.getDegrees());
+          robot.aimAtTargetRadians.append(adjustedTheta.getRadians());
+          robot.aimAtTargetDegreesNonAdj.append(result.getBestTarget().getYaw());
           
           drive(getTargetSpeeds(0,
                                 0,
                                 vision.getAdjustedTheta(camera))); // Not sure if this will work, more math may be required.
           
-          System.out.println("Grabbed Yaw: " + result.getBestTarget().getYaw());
-          System.out.println(" Adjusted Yaw: " + vision.getAdjustedTheta(camera));
+          //System.out.println("Grabbed Yaw: " + result.getBestTarget().getYaw());
+          //System.out.println(" Adjusted Yaw: " + vision.getAdjustedTheta(camera));
         }
       }
     });

@@ -10,6 +10,9 @@ import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.cscore.UsbCamera;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.trajectory.constraint.MaxVelocityConstraint;
+import edu.wpi.first.util.datalog.DataLog;
+import edu.wpi.first.util.datalog.DoubleLogEntry;
+import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
@@ -61,6 +64,11 @@ public class Robot extends TimedRobot
 
   UsbCamera cam0;
 
+  private DataLog dataLog;
+  public DoubleLogEntry aimAtTargetDegrees;
+  public DoubleLogEntry aimAtTargetRadians;
+  public DoubleLogEntry aimAtTargetDegreesNonAdj;
+
   //https://rgbcolorpicker.com/0-1
   //private final Color GreenTarget = new Color(0.197, 0.561, 0.240);
   //private final Color RedTarget = new Color(0.561, 0.232, 0.114);
@@ -103,6 +111,12 @@ public class Robot extends TimedRobot
     //colorMatcher.addColorMatch(background);
 
     //visionCamera = new PhotonCamera(cameraName);
+
+    DataLogManager.start();
+    dataLog = DataLogManager.getLog();
+    aimAtTargetDegrees = new DoubleLogEntry(dataLog, "/Vision/aimAtTargetDegrees");
+    aimAtTargetRadians = new DoubleLogEntry(dataLog, "/Vision/aimAtTargetRadians");
+    aimAtTargetDegreesNonAdj = new DoubleLogEntry(dataLog, "/Vision/aimAtTargetNonADJ");
 
     
 
