@@ -37,6 +37,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 import frc.robot.Constants;
 import frc.robot.Robot;
@@ -49,6 +50,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 import org.json.simple.parser.ParseException;
+import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonUtils;
 import org.photonvision.targeting.PhotonPipelineResult;
 import swervelib.SwerveController;
@@ -292,6 +294,44 @@ public class SwerveSubsystem extends SubsystemBase
           //System.out.println(" Adjusted Yaw: " + vision.getAdjustedTheta(camera));
         }
       }
+    });
+  }
+
+  public Command aimAtTargetBypass (PhotonCamera camera, CommandXboxController controller) {
+    return this.run(()-> {
+      //Joystick input
+      double forward = -controller.getLeftY() * Constants.MAX_SPEED;
+      double strafe = -controller.getLeftX() * Constants.MAX_SPEED;
+      double turn = -controller.getRightX() * Constants.MAX_ANGULAR_SPEED;
+
+      //Vision
+      boolean targetVisible = false;
+      double targetYaw = 0.0;
+
+      var results = camera.getAllUnreadResults();
+      if (!results.isEmpty()) {
+        var result = results.get(results.size() - 1);
+        if (result.hasTargets()) {
+          for (var target : result.getTargets()) {
+            targetYaw = target.getYaw();
+            targetVisible = true;
+            break;
+          }
+        }
+      }
+
+      //Auto-Align if targetVisible
+      if (targetVisible) {
+        turn = targetYaw * Constants.VISION_TURN_kP * Constants.MAX_SPEED;
+      }
+
+      Translation2d translation = new Translation2d(forward, strafe);
+      boolean fieldRelative = true;
+
+      drive(translation, turn, fieldRelative);
+
+      SmartDashboard.putBoolean("Vision Target Visible", targetVisible);
+      SmartDashboard.putNumber("Vision Target Yaw", targetYaw);
     });
   }
 

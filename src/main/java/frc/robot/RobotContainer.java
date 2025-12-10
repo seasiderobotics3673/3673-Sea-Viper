@@ -311,6 +311,9 @@ public class RobotContainer
       logitechController.a()
         .whileTrue(drivebase.aimAtTarget(cameraEnum));
 
+      logitechController.b()
+        .whileTrue(drivebase.aimAtTargetBypass(cameraEnum.photonCamera, logitechController));
+
 
       
       elevatorHighLimit.onTrue(new ParallelCommandGroup(

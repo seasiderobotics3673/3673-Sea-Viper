@@ -471,7 +471,7 @@ public class Vision
     /**
      * Camera instance for comms.
      */
-    public final  PhotonCamera                 camera;
+    public final  PhotonCamera                 photonCamera;
     /**
      * Pose estimator for camera.
      */
@@ -525,7 +525,7 @@ public class Vision
     {
       latencyAlert = new Alert("'" + name + "' Camera is experiencing high latency.", AlertType.kWarning);
 
-      camera = new PhotonCamera(name);
+      photonCamera = new PhotonCamera(name);
 
       // https://docs.wpilib.org/en/stable/docs/software/basic-programming/coordinate-system.html
       robotToCamTransform = new Transform3d(robotToCamTranslation, robotToCamRotation);
@@ -551,7 +551,7 @@ public class Vision
         cameraProp.setAvgLatencyMs(35);
         cameraProp.setLatencyStdDevMs(5);
 
-        cameraSim = new PhotonCameraSim(camera, cameraProp);
+        cameraSim = new PhotonCameraSim(photonCamera, cameraProp);
         cameraSim.enableDrawWireframe(true);
       }
     }
@@ -636,7 +636,7 @@ public class Vision
       if ((resultsList.isEmpty() || (currentTimestamp - mostRecentTimestamp >= debounceTime)) &&
           (currentTimestamp - lastReadTimestamp) >= debounceTime)
       {
-        resultsList = Robot.isReal() ? camera.getAllUnreadResults() : cameraSim.getCamera().getAllUnreadResults();
+        resultsList = Robot.isReal() ? photonCamera.getAllUnreadResults() : cameraSim.getCamera().getAllUnreadResults();
         lastReadTimestamp = currentTimestamp;
         resultsList.sort((PhotonPipelineResult a, PhotonPipelineResult b) -> {
           return a.getTimestampSeconds() >= b.getTimestampSeconds() ? 1 : -1;
