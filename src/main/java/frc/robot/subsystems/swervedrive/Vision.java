@@ -207,7 +207,7 @@ public class Vision
 
     double estimatedTargetPitch = Math.toRadians(result.getBestTarget().getPitch());
     double cameraPitch = camera.robotToCamTransform.getRotation().getY(); //Should Return 0
-    double targetHeight = Constants.APRILTAG_HEIGHTS[22]; //Dummy Value; Change Later
+    double targetHeight = Constants.APRILTAG_HEIGHTS[23]; //Dummy Value; Change Later
     double estimatedTargetDistance = PhotonUtils.calculateDistanceToTargetMeters
     (
       Cameras.CENTER_CAM.robotToCamTransform.getZ(),

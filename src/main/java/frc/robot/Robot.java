@@ -112,11 +112,11 @@ public class Robot extends TimedRobot
 
     //visionCamera = new PhotonCamera(cameraName);
 
-    DataLogManager.start();
-    dataLog = DataLogManager.getLog();
-    aimAtTargetDegrees = new DoubleLogEntry(dataLog, "/Vision/aimAtTargetDegrees");
-    aimAtTargetRadians = new DoubleLogEntry(dataLog, "/Vision/aimAtTargetRadians");
-    aimAtTargetDegreesNonAdj = new DoubleLogEntry(dataLog, "/Vision/aimAtTargetNonADJ");
+    //DataLogManager.start();
+    //dataLog = DataLogManager.getLog();
+    //aimAtTargetDegrees = new DoubleLogEntry(dataLog, "/Vision/aimAtTargetDegrees");
+    //aimAtTargetRadians = new DoubleLogEntry(dataLog, "/Vision/aimAtTargetRadians");
+    //aimAtTargetDegreesNonAdj = new DoubleLogEntry(dataLog, "/Vision/aimAtTargetNonADJ");
 
     
 

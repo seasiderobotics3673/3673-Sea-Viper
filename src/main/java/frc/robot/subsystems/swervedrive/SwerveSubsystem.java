@@ -281,15 +281,19 @@ public class SwerveSubsystem extends SubsystemBase
         var result = resultO.get();
         if (result.hasTargets())
         {
-          Rotation2d adjustedTheta = vision.getAdjustedTheta(camera);
-          robot.aimAtTargetDegrees.append(adjustedTheta.getDegrees());
-          robot.aimAtTargetRadians.append(adjustedTheta.getRadians());
-          robot.aimAtTargetDegreesNonAdj.append(result.getBestTarget().getYaw());
-          
+          //Rotation2d adjustedTheta = vision.getAdjustedTheta(camera);
+          //robot.aimAtTargetDegrees.append(adjustedTheta.getDegrees());
+          //robot.aimAtTargetRadians.append(adjustedTheta.getRadians());
+          //robot.aimAtTargetDegreesNonAdj.append(result.getBestTarget().getYaw());
+          /*
           drive(getTargetSpeeds(0,
                                 0,
                                 vision.getAdjustedTheta(camera))); // Not sure if this will work, more math may be required.
           
+                                */
+          drive(getTargetSpeeds(0,
+                                0,
+                                Rotation2d.fromDegrees(result.getBestTarget().getYaw()))); // Not sure if this will work, more math may be required.
           //System.out.println("Grabbed Yaw: " + result.getBestTarget().getYaw());
           //System.out.println(" Adjusted Yaw: " + vision.getAdjustedTheta(camera));
         }
@@ -298,8 +302,9 @@ public class SwerveSubsystem extends SubsystemBase
   }
 
   public Command aimAtTargetBypass (PhotonCamera camera, CommandXboxController controller) {
-    return this.run(()-> {
+    return run(()-> {
       //Joystick input
+      System.out.println("Needless Spam");
       double forward = -controller.getLeftY() * Constants.MAX_SPEED;
       double strafe = -controller.getLeftX() * Constants.MAX_SPEED;
       double turn = -controller.getRightX() * Constants.MAX_ANGULAR_SPEED;
@@ -749,7 +754,7 @@ public class SwerveSubsystem extends SubsystemBase
     return swerveDrive.swerveController.getTargetSpeeds(scaledInputs.getX(),
                                                         scaledInputs.getY(),
                                                         angle.getRadians(),
-                                                        getHeading().getRadians(),
+                                                        -getHeading().getRadians(),
                                                         Constants.MAX_SPEED);
   }
 
