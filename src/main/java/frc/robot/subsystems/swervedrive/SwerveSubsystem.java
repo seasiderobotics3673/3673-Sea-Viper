@@ -270,73 +270,18 @@ public class SwerveSubsystem extends SubsystemBase
    */
   public Command aimAtTarget(Cameras camera)
   {
-    //System.out.println("aimAtTarget Running");
-    setupPhotonVision();
     return run(() -> {
-      //vision.getEstimatedGlobalPose(camera); //Forces camera update.
-      //Optional<PhotonPipelineResult> resultO = camera.getBestResult();
       Optional<PhotonPipelineResult> resultO = camera.getLatestResult();
       if (resultO.isPresent())
       {
         var result = resultO.get();
         if (result.hasTargets())
         {
-          //Rotation2d adjustedTheta = vision.getAdjustedTheta(camera);
-          //robot.aimAtTargetDegrees.append(adjustedTheta.getDegrees());
-          //robot.aimAtTargetRadians.append(adjustedTheta.getRadians());
-          //robot.aimAtTargetDegreesNonAdj.append(result.getBestTarget().getYaw());
-          /*
-          drive(getTargetSpeeds(0,
-                                0,
-                                vision.getAdjustedTheta(camera))); // Not sure if this will work, more math may be required.
-          
-                                */
           drive(getTargetSpeeds(0,
                                 0,
                                 Rotation2d.fromDegrees(result.getBestTarget().getYaw()))); // Not sure if this will work, more math may be required.
-          //System.out.println("Grabbed Yaw: " + result.getBestTarget().getYaw());
-          //System.out.println(" Adjusted Yaw: " + vision.getAdjustedTheta(camera));
         }
       }
-    });
-  }
-
-  public Command aimAtTargetBypass (PhotonCamera camera, CommandXboxController controller) {
-    return run(()-> {
-      //Joystick input
-      System.out.println("Needless Spam");
-      double forward = -controller.getLeftY() * Constants.MAX_SPEED;
-      double strafe = -controller.getLeftX() * Constants.MAX_SPEED;
-      double turn = -controller.getRightX() * Constants.MAX_ANGULAR_SPEED;
-
-      //Vision
-      boolean targetVisible = false;
-      double targetYaw = 0.0;
-
-      var results = camera.getAllUnreadResults();
-      if (!results.isEmpty()) {
-        var result = results.get(results.size() - 1);
-        if (result.hasTargets()) {
-          for (var target : result.getTargets()) {
-            targetYaw = target.getYaw();
-            targetVisible = true;
-            break;
-          }
-        }
-      }
-
-      //Auto-Align if targetVisible
-      if (targetVisible) {
-        turn = targetYaw * Constants.VISION_TURN_kP * Constants.MAX_SPEED;
-      }
-
-      Translation2d translation = new Translation2d(forward, strafe);
-      boolean fieldRelative = true;
-
-      drive(translation, turn, fieldRelative);
-
-      SmartDashboard.putBoolean("Vision Target Visible", targetVisible);
-      SmartDashboard.putNumber("Vision Target Yaw", targetYaw);
     });
   }
 
@@ -754,7 +699,7 @@ public class SwerveSubsystem extends SubsystemBase
     return swerveDrive.swerveController.getTargetSpeeds(scaledInputs.getX(),
                                                         scaledInputs.getY(),
                                                         angle.getRadians(),
-                                                        -getHeading().getRadians(),
+                                                        getHeading().getRadians(),
                                                         Constants.MAX_SPEED);
   }
 
