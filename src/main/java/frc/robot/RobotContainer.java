@@ -35,6 +35,8 @@ import frc.robot.commands.swervedrive.auto.RotateTest;
 import frc.robot.commands.swervedrive.auto.ScoreCoralInReef;
 import frc.robot.commands.swervedrive.auto.SideWallsScoreCoralInReef;
 import frc.robot.commands.swervedrive.auto.TwoPointReefAuto;
+import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.swervedrive.AlgaeManipulator;
 import frc.robot.subsystems.swervedrive.Elevator;
 import frc.robot.subsystems.swervedrive.Feeder;
@@ -72,6 +74,10 @@ public class RobotContainer
   private final Feeder feeder = new Feeder();
 
   private final AlgaeManipulator algaeManipulator = new AlgaeManipulator();
+
+  private final Intake intake = new Intake();
+
+  private final Shooter shooter = new Shooter();
 
   protected final Vision vision = new Vision(() -> drivebase.getSwerveDrive().getPose(), drivebase.getSwerveDrive().field);
 
@@ -256,7 +262,10 @@ public class RobotContainer
       //L4
       //brodieBox2025.button(11).onTrue(new MoveElevatorToLevel(elevator.L4, elevator));
       //Hopper/Reset
-      brodieBox2025.button(6).onTrue(new MoveElevatorToLevel(elevator.HOPPER, elevator));
+      //brodieBox2025.button(6).onTrue(new MoveElevatorToLevel(elevator.HOPPER, elevator));
+      brodieBox2025.button(6)
+        .toggleOnTrue(new InstantCommand(()-> shooter.setLauncherMotorSpeed(0.75)))
+        .toggleOnFalse(new InstantCommand(()-> shooter.setLauncherMotorSpeed(0.0)));
 
       //Manual Go Up
       brodieBox2025.button(8)
@@ -265,8 +274,10 @@ public class RobotContainer
       
       //Manual Go Down
       brodieBox2025.button(7)
-      .onTrue(new InstantCommand(()-> elevator.changeMotorSpeed(Constants.ELEVATOR_MANUAL_SPEED_DOWN)))
-      .onFalse(new InstantCommand(()-> elevator.changeMotorSpeed(Constants.ELEVATOR_MANUAL_SPEED_DOWN_INVERSE)));
+      //.onTrue(new InstantCommand(()-> elevator.changeMotorSpeed(Constants.ELEVATOR_MANUAL_SPEED_DOWN)))
+      //.onFalse(new InstantCommand(()-> elevator.changeMotorSpeed(Constants.ELEVATOR_MANUAL_SPEED_DOWN_INVERSE)));
+      .onTrue(new InstantCommand(()-> intake.setDeploySpeed(0.1)))
+      .onFalse(new InstantCommand(()-> intake.setDeploySpeed(0.0)));
 
       //Feeder Reversed/Out
       brodieBox2025.button(1)
@@ -285,12 +296,16 @@ public class RobotContainer
       
       //Belt Set Speed
       brodieBox2025.button(4)
-        .onTrue(new InstantCommand(()-> algaeManipulator.setBeltSpeed(0.25)))
-        .onFalse(new InstantCommand(()-> algaeManipulator.setBeltSpeed(0)));
+        //.onTrue(new InstantCommand(()-> algaeManipulator.setBeltSpeed(0.25)))
+        //.onFalse(new InstantCommand(()-> algaeManipulator.setBeltSpeed(0)));
+        .onTrue(new InstantCommand(()-> shooter.setKickerMotorSpeed(0.3)))
+        .onFalse(new InstantCommand(()-> shooter.setKickerMotorSpeed(0.0)));
       //Deploy Speed (Keep Low)
       brodieBox2025.button(5)
-        .onTrue(new InstantCommand(()-> algaeManipulator.setDeploySpeed(0.125)))
-        .onFalse(new InstantCommand(()-> algaeManipulator.setDeploySpeed(0)));
+        //.onTrue(new InstantCommand(()-> algaeManipulator.setDeploySpeed(0.125)))
+        //.onFalse(new InstantCommand(()-> algaeManipulator.setDeploySpeed(0)));
+        .onTrue(new InstantCommand(()-> intake.setIntakeSpeed(0.5)))
+        .onFalse(new InstantCommand(()-> intake.setIntakeSpeed(0.0)));
 
       coralDetector.onTrue(new InstantCommand(()-> feeder.setSpeeds(0.0, 0.0)));
 
